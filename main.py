@@ -3,87 +3,54 @@ from pygame.locals import*
 from BIRDS import Bird
 from PLAYER import Player
 from game import Game
+pygame.mixer.pre_init(44100, -16, 1, 512)
 
 pygame.init()
 
 Title = pygame.display.set_caption(" hunter game")
 screen = pygame.display.set_mode((1080,600))
+my_icon = pygame.image.load("assets/Game_icon.png")
+pygame.display.set_icon(my_icon)
+
+clock = pygame.time.Clock()
 
 bg = pygame.image.load("assets/forest1.png")
 background = pygame.transform.scale(bg, (1080, 700))
+# load the banner
+banner = pygame.image.load("assets/the banner.png")
+banner = pygame.transform.scale(banner, (1080, 600))
+# load the play button
+launch_button = pygame.image.load("assets/button.png")
+launch_button = pygame.transform.scale(launch_button, (400, 150))
+launch_button_rect = launch_button.get_rect()
 
+game = Game()     
 
-game = Game()
-player = Player(game)
 
 running = True
 while running:
     
-    # apply background
-    screen.blit(background, (0, 0))
+    clock.tick(60)
+    # verify if the game has begin
+    if game.is_playing:
+        # launch the game      
+        game.launch_the_game(screen, background, game.player)
+    else:
+        screen.blit(banner, (0, 0))
+        screen.blit(launch_button, (300, 320))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: 
+                running = False
+                pygame.quit()
 
-    # apply player
-    screen.blit(player.image, player.rect)
-    # carry all fireball movement
-    for arrows in player.all_arrows:
-        arrows.move()
-       
-
-    # apply fireballs on the screen
-    player.all_arrows.draw(screen)
-
-    # carry all monster movement
-    for monster in game.all_birds:
-        monster.auto_move()
-
-
-    # apply the monster on the screen
-    game.all_birds.draw(screen)
-
-    pygame.display.flip()
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: 
-            running = False
-            pygame.quit()
-
-        #throw fireball 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.launch_arrow()
-
-        # register user's imput
-    keys = pygame.key.get_pressed()
-    if keys[K_RIGHT] and player.rect.x + player.rect.width < screen.get_width():
-            player.move_right()
-    
-    elif keys[K_LEFT] and player.rect.x > 0:
-            player.move_left()
-
-
-
-
-    # carry the character flipping 
-    to_right = True
-    if player.rect.x > screen.get_width()/ 2 and to_right == True :
-         player.image = pygame.transform.flip(player.image, True, False)
-         to_right= False
-    if player.rect.x >  20 and to_right == False :
-        player.image = pygame.transform.flip(player.image, True, False)
-        to_right = True
-            
-    
-
-                
+            keys = pygame.key.get_pressed()
+            if keys[K_SPACE]:
+                game.start()
+            '''if event.type == pygame.MOUSEBUTTONDOWN: 
+                if launch_button_rect.collidepoint(event.pos):
+                    game.is_playing = True'''
         
-
-
-
-
-
         # carry player movement
         
 
-
-
-    pygame.display.update()
+    pygame.display.update()                       
